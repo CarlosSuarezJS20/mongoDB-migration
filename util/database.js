@@ -1,40 +1,29 @@
-// const mysql = require("mysql2");
-const { Sequelize } = require("sequelize");
+const { MongoClient, ServerApiVersion } = require("mongodb");
 
-// const pool = mysql.createPool({
-//   host: "localhost",
-//   user: "root",
-//   database: "shop-sql-complete",
-//   password: "aliciasuarez83!",
-// });
+const uri =
+  "mongodb+srv://csuarezuk83:Colombia83!@trainingmongodb1505.uoxtv6j.mongodb.net/?retryWrites=true&w=majority";
 
-// pool.getConnection((error) => {
-//   if (error) {
-//     console.log("Could not connect to MySQL" + "error: " + error);
-//   } else {
-//     console.log("connected");
-//   }
-// });
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
 
-const sequelize = new Sequelize(
-  "shop-sql-complete",
-  "root",
-  "aliciasuarez83!",
-  {
-    host: "localhost",
-    dialect: "mysql",
-  }
-);
-
-const startDatabase = async () => {
+module.exports = runServer = async () => {
   try {
-    await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db();
+    console.log(client);
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    console.log(error);
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
   }
 };
 
-startDatabase();
-
-module.exports = sequelize;
+runServer().catch(console.dir);
