@@ -1,50 +1,51 @@
 const Product = require("../models/product");
-// this isn't necessary but it is good practice
-const { QueryTypes } = require("sequelize");
-const sequelize = require("../util/database");
+const { ObjectId } = require("mongodb");
 
-exports.getProducts = async (req, res, next) => {
-  console.log(req.isLoggedIn);
-  // practicing raw queries
-  sequelize
-    .query("SELECT * FROM products", { type: QueryTypes.SELECT })
+exports.getProducts = async (req, res) => {
+  Product.fetchAllProducts()
     .then((prods) => {
+      // re-modeling
+      const modifiedProductList = prods.map((product) => {
+        return { ...product, _id: product._id.toString() };
+      });
       res.render("shop/product-list", {
-        prods: prods,
+        prods: modifiedProductList,
         pageTitle: "Product List",
         path: "/products",
-        // isAuthenticated: req.cookies["loggedIn"],
-        isAuthenticated: req.session.isLoggedIn,
+        isAuthenticated: true,
       });
     })
     .catch((err) => console.log(err));
 };
 
 exports.getProductById = async (req, res) => {
-  const productId = req.params.productId;
-  const selectedProd = await Product.findByPk(productId);
-  res.render("shop/product-detail", {
-    product: selectedProd,
-    pageTitle: selectedProd.title,
-    path: "/products",
-    isAuthenticated: req.session.isLoggedIn,
-  });
-  try {
-  } catch (error) {
-    console.log(error);
-    console.log("Product not found");
-  }
+  const productId = new ObjectId(req.params.productId);
+  Product.fetchProductById(productId)
+    .then((prodDoc) => {
+      res.render("shop/product-detail", {
+        product: prodDoc,
+        pageTitle: prodDoc.title,
+        path: "/products",
+        isAuthenticated: req.session.isLoggedIn,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
 };
 
 exports.getIndex = async (req, res, next) => {
-  console.log("authenticated ", req.session.isLoggedIn);
   try {
-    const currentProducts = await Product.findAll();
+    const currentProducts = await Product.fetchAllProducts();
+    // re-modeling
+    const modifiedProductList = currentProducts.map((product) => {
+      return { ...product, _id: product._id.toString() };
+    });
     res.render("shop/index", {
-      prods: currentProducts,
+      prods: modifiedProductList,
       pageTitle: "Shop",
       path: "/",
-      // isAuthenticated: req.cookies["loggedIn"],
       isAuthenticated: req.session.isLoggedIn,
     });
   } catch (error) {

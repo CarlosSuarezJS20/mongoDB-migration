@@ -1,15 +1,21 @@
+const User = require("../models/user");
+
 exports.postLogin = (req, res) => {
   const userEmail = req.body.email;
   const password = req.body.password;
+
   console.log({ userEmail: userEmail, password: password });
-  req.session.isLoggedIn = true;
-  //   setting cookie
-  // res.cookie("loggedIn", "true", {
-  //   maxAge: 900000,
-  //   httpOnly: true, // not client side manipulation
-  // });
-  // initializing a session below
-  res.redirect("/");
+
+  User.findUser(req.session.user._id.toString())
+    .then((userfound) => {
+      req.session.isLoggedIn = true;
+
+      req.session.user = userfound;
+      res.redirect("/");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 exports.getLogin = (req, res) => {
@@ -17,7 +23,6 @@ exports.getLogin = (req, res) => {
   res.render("auth/login", {
     pageTitle: "Login Page",
     path: "/login",
-    // isAuthenticated: req.cookies["loggedIn"],
     isAuthenticated: req.session.isLoggedIn,
   });
 };

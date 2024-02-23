@@ -11,7 +11,6 @@ exports.getCart = async (req, res, next) => {
           path: "/cart",
           pageTitle: "Your Cart",
           products: createCart,
-          // isAuthenticated: req.cookies["loggedIn"],
           isAuthenticated: req.session.isLoggedIn,
         });
       } catch (error) {
@@ -22,7 +21,6 @@ exports.getCart = async (req, res, next) => {
       path: "/cart",
       pageTitle: "Your Cart",
       products: currentCart,
-      // isAuthenticated: req.cookies["loggedIn"],
       isAuthenticated: req.session.isLoggedIn,
     });
   } catch (error) {

@@ -1,7 +1,7 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
 const uri =
-  "mongodb+srv://csuarezuk83:Colombia83!@trainingmongodb1505.uoxtv6j.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://csuarezuk83:Colombia83!@trainingmongodb1505.uoxtv6j.mongodb.net/shop?retryWrites=true&w=majority";
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -11,21 +11,38 @@ const client = new MongoClient(uri, {
   },
 });
 
-module.exports = runServer = async () => {
+let db;
+
+const runServer = async () => {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db();
-    console.log(client);
+    if (!db) {
+      await client.connect();
+      console.log("client is connected");
+      // Send a ping to confirm a successful connection
+      db = client.db("shop");
+    }
   } catch (error) {
     console.log(error);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    throw error;
+  }
+};
+// testing testing !
+const getDb = () => {
+  if (!db) {
+    throw new Error("Database not connected. Call connectToDatabase first.");
+  }
+  return db;
+};
+
+const closeDataBase = async () => {
+  try {
+    if (!client) {
+      await client.close();
+      console.log("Closed the database connection");
+    }
+  } catch (error) {
+    console.error("Error closing the database connection:", error);
   }
 };
 
-// testing
-
-runServer().catch(console.dir);
+module.exports = { runServer, getDb, closeDataBase, uri };
