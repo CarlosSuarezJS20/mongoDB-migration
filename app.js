@@ -13,6 +13,20 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session"); // session middleware
 const MongoDBStore = require("connect-mongodb-session")(session);
 
+// Mongoose installation
+const mongoose = require("mongoose");
+mongoose.connect(uri);
+
+const dbConnection = mongoose.connection;
+
+dbConnection.on(
+  "error",
+  console.error.bind(console, "MongoDB connection error:")
+);
+dbConnection.once("open", () => {
+  console.log("Connected to MongoDB");
+});
+
 const shopRoutes = require("./routes/shop");
 const adminRoutes = require("./routes/admin");
 const authRoutes = require("./routes/auth");

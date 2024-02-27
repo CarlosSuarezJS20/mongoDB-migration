@@ -19,7 +19,6 @@ exports.postLogin = (req, res) => {
 };
 
 exports.getLogin = (req, res) => {
-  //   console.log(req.cookies["loggedIn"]);
   res.render("auth/login", {
     pageTitle: "Login Page",
     path: "/login",
